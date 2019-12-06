@@ -3,71 +3,52 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 using namespace std;
 
 class Edge;
+class Node;
 
-//template for generic type 
 template<typename K, typename V>
 
-//Hashnode class 
-class HashNode
-{
+class HashNode {
 public:
 	V value;
 	K key;
-
-	//Constructor of hashnode  
-	HashNode(K key, V value)
-	{
+	HashNode(K key, V value) {
 		this->value = value;
 		this->key = key;
 	}
 };
 
-//template for generic type 
 template<typename K, typename V>
 
-//Our own Hashmap class 
-class HashMap
-{
-	//hash element array 
+class HashMap {
 	HashNode<K, V>** arr;
 	int capacity;
 	//current size 
 	int size;
 	//dummy node 
 	HashNode<K, V>* dummy;
-
 public:
-	HashMap()
-	{
+	HashMap() {
 		//Initial capacity of hash array 
 		capacity = 1000;
 		size = 0;
 		arr = new HashNode<K, V> * [capacity];
 
-		//Initialise all elements of array as NULL 
-		for (int i = 0; i < capacity; i++)
-			arr[i] = NULL;
-
-		//dummy node with value and key -1 
-		//dummy = new HashNode<K, V>(-1, -1);
+		for (int i = 0; i < capacity; i++) arr[i] = NULL;
 	}
-	// This implements hash function to find index 
-	// for a key 
 	int hashCode(K key)
 	{
 		return key % capacity;
 	}
 
-	//Function to add key value pair 
 	void insertNode(K key, V value)
 	{
 		HashNode<K, V>* temp = new HashNode<K, V>(key, value);
-		// Apply hash function to find index for given key 
+
 		int hashIndex = key;
-		//find next free space 
  
 		while (arr[hashIndex] != NULL && arr[hashIndex]->key == key && arr[hashIndex]->key != -1) {
 			if (arr[hashIndex]->value == value) return;
@@ -78,29 +59,18 @@ public:
 			hashIndex++;
 			hashIndex %= capacity;
 		}
-		//if new node to be inserted increase the current size 
-		if (arr[hashIndex] == NULL || arr[hashIndex]->key == -1)
-			size++;
+
+		if (arr[hashIndex] == NULL || arr[hashIndex]->key == -1) size++;
 		arr[hashIndex] = temp;
 	}
-	//Function to delete a key value pair 
 	V deleteNode(int key)
 	{
-		// Apply hash function to find index for given key 
 		int hashIndex = hashCode(key);
 
-		//finding the node with given key 
-		while (arr[hashIndex] != NULL)
-		{
-			//if node found 
-			if (arr[hashIndex]->key == key)
-			{
+		while (arr[hashIndex] != NULL) {
+			if (arr[hashIndex]->key == key)	{
 				HashNode<K, V>* temp = arr[hashIndex];
-
-				//Insert dummy node here for further use 
 				arr[hashIndex] = dummy;
-
-				// Reduce size 
 				size--;
 				return temp->value;
 			}
@@ -108,51 +78,33 @@ public:
 			hashIndex %= capacity;
 
 		}
-
-		//If not found return null 
 		return NULL;
 	}
 
-	//Function to search the value for a given key 
-	V get(int key)
-	{
-		// Apply hash function to find index for given key 
+	V get(int key) {
 		int hashIndex = hashCode(key);
 		int counter = 0;
-		//finding the node with given key    
-		while (arr[hashIndex] != NULL)
-		{
+		while (arr[hashIndex] != NULL) {
 			int counter = 0;
-			if (counter++ > capacity)  //to avoid infinite loop 
-				return NULL;
-			//if node found return its value 
-			if (arr[hashIndex]->key == key)
-				return arr[hashIndex]->value;
+			if (counter++ > capacity) return NULL;
+			if (arr[hashIndex]->key == key) return arr[hashIndex]->value;
 			hashIndex++;
 			hashIndex %= capacity;
 		}
-
-		//If not found return null 
 		return NULL;
 	}
 
-	//Return current size  
-	int sizeofMap()
-	{
+	int sizeofMap() {
 		return size;
 	}
 
-	//Return true if size is 0 
-	bool isEmpty()
-	{
+	bool isEmpty() {
 		return size == 0;
 	}
 
-	//Function to display the stored key value pairs 
 	void display()
 	{
 		int nonEmpty = 0;
-		// variables for counting empty
 
 		bool currentlyCountingEmpty = false;
 
@@ -162,8 +114,6 @@ public:
 		int largestEmpty = 0;
 		int currentEmpty = -1;
 
-		// variables for counting cluster
-
 		bool currentlyCountingCluster = false;
 
 		int startCluster = 0;
@@ -172,19 +122,17 @@ public:
 		int largestCluster = 0;
 		int currentCluster = 0;
 
-		// variables for counting farthest string
 		string farthestString = "";
 		int largestDist = 0;
-		int a; // index
-		int b; // hash
+		int a;
+		int b;
 
 		for (int i = 0; i < capacity; i++)
 		{
-			if (arr[i] != NULL && arr[i]->key != -1) { // non-empty
+			if (arr[i] != NULL && arr[i]->key != -1) {
 				nonEmpty++;
 				cout << i << " " << arr[i]->value << " " << arr[i]->key << endl;
 
-				// old
 				if (currentEmpty > largestEmpty) {
 					largestEmpty = currentEmpty;
 					startEmpty = currentStartEmpty;
@@ -194,14 +142,13 @@ public:
 				currentStartEmpty = 0;
 				currentlyCountingEmpty = false;
 
-				// new
 				currentCluster++;
 				if (!currentlyCountingCluster) {
 					currentlyCountingCluster = true;
 					currentStartCluster = i;
 				}
 
-				int dist = abs(arr[i]->key - i); // difference between hash address and actual hash address
+				int dist = abs(arr[i]->key - i);
 				if (dist > largestDist) {
 					farthestString = arr[i]->value;
 					largestDist = dist;
@@ -209,17 +156,15 @@ public:
 					b = arr[i]->key;
 				}
 			}
-			else { // empty
+			else {
 				cout << i << " " << -1 << endl;
 
-				// old
 				currentEmpty++;
 				if (!currentlyCountingEmpty) {
 					currentlyCountingEmpty = true;
 					currentStartEmpty = i;
 				}
 
-				// new
 				if (currentCluster > largestCluster) {
 					largestCluster = currentCluster;
 					startCluster = currentStartCluster;
@@ -275,14 +220,97 @@ void genTable(string filename) {
 	file.close();
 }
 
-class Node {
-	vector<Edge> connected;
-};
+// Number of vertices in the graph 
+#define V 10
 
-class Edge {
-	Node connected;
-};
+int minDistance(int dist[], bool sptSet[])
+{
+	int min = INT_MAX, min_index;
+
+	for (int v = 0; v < V; v++)
+		if (sptSet[v] == false && dist[v] <= min) min = dist[v], min_index = v;
+	return min_index;
+}
+
+void printSolution(int dist[])
+{
+	printf("Vertex \t\t Distance from Source\n");
+	for (int i = 0; i < V; i++) {
+		printf("%d \t\t %d\n", i, dist[i]);
+	}
+}
+
+void dijkstra(vector<vector<int>> graph, int src, int dest) {
+	int dist[V]; // The output array.  dist[i] will hold the shortest 
+	// distance from src to i 
+
+	bool sptSet[V]; // sptSet[i] will be true if vertex i is included in shortest 
+	// path tree or shortest distance from src to i is finalized 
+
+	// Initialize all distances as INFINITE and stpSet[] as false 
+	for (int i = 0; i < V; i++)
+		dist[i] = INT_MAX, sptSet[i] = false;
+
+	// Distance of source vertex from itself is always 0 
+	dist[src] = 0;
+
+	// Find shortest path for all vertices 
+	for (int count = 0; count < V - 1; count++) {
+		// Pick the minimum distance vertex from the set of vertices not 
+		// yet processed. u is always equal to src in the first iteration. 
+		int u = minDistance(dist, sptSet);
+
+		// Mark the picked vertex as processed 
+		sptSet[u] = true;
+
+		// Update dist value of the adjacent vertices of the picked vertex. 
+		for (int v = 0; v < V; v++)
+
+			// Update dist[v] only if is not in sptSet, there is an edge from 
+			// u to v, and total weight of path from src to  v through u is 
+			// smaller than current value of dist[v] 
+			if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX
+				&& dist[u] + graph[u][v] < dist[v])
+				dist[v] = dist[u] + graph[u][v];
+	}
+
+	// print the constructed distance array 
+	//printSolution(dist);
+	cout << "The shortest distance from node " << src << " to node " << dest << " is " << dist[dest];
+}
 
 int main() {
 	genTable("Raven.txt");
+
+	ifstream file;
+	file.open("Graph.txt");
+	string strSize;
+	file >> strSize;
+	int size = stoi(strSize); // gets size of matrix
+
+	vector<vector<int>> graph(size, vector<int>(size, 0));
+	int currentRow = 0;
+	int currentCol = 0;
+
+	
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			string strNum;
+			file >> strNum;
+			int num = stoi(strNum);
+			graph[i][j] = num;
+		}
+	}
+	
+	
+	file.close();
+
+	int src;
+	int dest;
+	cout << "Enter a source node: ";
+	cin >> src;
+	fflush(stdin);
+	cout << "Enter a destination node: ";
+	cin >> dest;
+	dijkstra(graph, src, dest);
 }
